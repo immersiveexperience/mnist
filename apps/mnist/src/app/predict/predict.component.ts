@@ -19,5 +19,39 @@ import { DrawareaDirective } from './draw.directive';
   styleUrls: ['./predict.component.scss'],
 })
 export class PredictComponent implements OnInit {
-  // Code
+  predictedValue: number | undefined;
+
+  private model: LayersModel | undefined;
+
+  @ViewChild(DrawareaDirective) drawArea: DrawareaDirective | undefined;
+
+  constructor(private changeDetectorRef: ChangeDetectorRef) {}
+
+  clear() {
+    this.predictedValue = undefined;
+    this.drawArea?.clear();
+  }
+
+  ngOnInit() {
+    this.loadModel();
+  }
+
+  async loadModel() {
+    this.model = await loadLayersModel('/assets/models/model.json');
+  }
+
+  async predict(imageData: ImageData) {
+    await tidy(() => {
+      const img = browser.fromPixels(imageData, 1).toFloat();
+      const normalized = img.div(scalar(256.0));
+      const batched = normalized.reshape([1, 28, 28, 1]);
+
+      const output = this.model?.predict(batched) as Tensor<Rank> | undefined;
+
+      output?.data().then((predictions) => {
+        this.predictedValue = predictions.indexOf(Math.max(...predictions));
+        this.changeDetectorRef.markForCheck();
+      });
+    });
+  }
 }
