@@ -1,0 +1,15 @@
+<div class="overflow-hidden rounded-lg bg-white shadow">
+  <div class="px-4 py-5 sm:p-6">
+    <div class="font-bold text-base text-gray-800" *ngIf="heading">
+      {{ heading }}
+    </div>
+    <div class="w-full h-[320px]" #container></div>
+    <!-- <div class="text-center" *ngIf="data">
+      {{
+        data.type === 'loss'
+          ? 'Last loss: ' + data.value
+          : 'Last accuracy: ' + data.value
+      }}
+    </div> -->
+  </div>
+</div>

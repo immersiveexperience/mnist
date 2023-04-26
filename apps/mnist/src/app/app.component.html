@@ -1,0 +1,40 @@
+<nav class="bg-gray-800">
+  <div class="mx-auto px-2">
+    <div class="relative flex h-16 items-center justify-between">
+      <div
+        class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start"
+      >
+        <div class="hidden sm:ml-6 sm:block">
+          <div class="flex space-x-4">
+            <a
+              routerLink="/train"
+              routerLinkActive
+              #rla2="routerLinkActive"
+              class="rounded-md px-3 py-2 text-sm font-medium"
+              [ngClass]="[
+                rla2.isActive
+                  ? 'text-white bg-gray-900'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              ]"
+              >Train</a
+            >
+            <a
+              routerLink="/predict"
+              routerLinkActive
+              #rla1="routerLinkActive"
+              class="rounded-md px-3 py-2 text-sm font-medium"
+              [ngClass]="[
+                rla1.isActive
+                  ? 'text-white bg-gray-900'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+              ]"
+              aria-current="page"
+              >Predict</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<router-outlet></router-outlet>
