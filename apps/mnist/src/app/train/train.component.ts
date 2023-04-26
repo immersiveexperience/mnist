@@ -48,15 +48,27 @@ export class TrainComponent {
   data: MnistData | undefined;
 
   constructor() {
-    // Code
+    setBackend('webgl');
   }
 
   async loadAndTrain(trainEpochs: string) {
-    // Code
+    this.loading$.next(true);
+    this.status$.next(TrainingStatus.Loading);
+    await this.loadMnist();
+    this.status$.next(TrainingStatus.Model);
+    const model = createModel();
+    model.summary();
+    this.status$.next(TrainingStatus.Training);
+    await this.trainModel(model, parseInt(trainEpochs, 10), () => {
+      this.showPredictions(model);
+    });
+    await model.save('downloads://model');
+    this.loading$.next(false);
   }
 
   private async loadMnist() {
-    // Code
+    this.data = new MnistData();
+    await this.data.load();
   }
 
   private async trainModel(
@@ -64,7 +76,91 @@ export class TrainComponent {
     trainEpochs: number,
     onIteration: () => void
   ) {
-    // Code
+    if (!this.data) {
+      throw new Error('No data');
+    }
+    const optimizer = 'rmsprop';
+    model.compile({
+      optimizer,
+      loss: 'categoricalCrossentropy',
+      metrics: ['accuracy'],
+    });
+
+    const trainData = this.data.getTrainData();
+    const testData = this.data.getTestData();
+    const batchSize = 160;
+    const validationSplit = 0.15;
+    const totalNumBatches =
+      Math.ceil((trainData.xs.shape[0] * (1 - validationSplit)) / batchSize) *
+      trainEpochs;
+    let trainBatchCount = 0;
+    let valAcc = 0;
+
+    await model.fit(trainData.xs, trainData.labels, {
+      batchSize,
+      validationSplit,
+      epochs: trainEpochs,
+      callbacks: {
+        onBatchEnd: async (batch, logs?: Logs) => {
+          if (!logs) {
+            throw new Error('No logs');
+          }
+          trainBatchCount++;
+          this.log$.next(
+            `Training... (` +
+              `${((trainBatchCount / totalNumBatches) * 100).toFixed(1)}%` +
+              ` complete). To stop training, refresh or close page.`
+          );
+
+          if (onIteration && batch % 10 === 0) {
+            onIteration();
+            this.loss$.next({
+              count: trainBatchCount,
+              type: 'loss',
+              value: logs['loss'],
+              set: 'train',
+            });
+            this.accuracy$.next({
+              count: trainBatchCount,
+              type: 'accuracy',
+              value: logs['acc'],
+              set: 'train',
+            });
+          }
+          await nextFrame();
+        },
+        onEpochEnd: async (epoch, logs?: Logs) => {
+          if (!logs) {
+            throw new Error('No logs');
+          }
+          valAcc = logs['val_acc'];
+          this.loss$.next({
+            count: trainBatchCount,
+            type: 'loss',
+            value: logs['val_loss'],
+            set: 'validation',
+          });
+          this.accuracy$.next({
+            count: trainBatchCount,
+            type: 'accuracy',
+            value: logs['val_acc'],
+            set: 'validation',
+          });
+          if (onIteration) {
+            onIteration();
+          }
+          await nextFrame();
+        },
+      },
+    });
+
+    const testResult = model.evaluate(testData.xs, testData.labels) as Scalar[];
+    const testAccPercent = testResult[1].dataSync()[0] * 100;
+    const finalValAccPercent = valAcc * 100;
+    this.log$.next(
+      `Final validation accuracy: ${finalValAccPercent.toFixed(1)}%; ` +
+        `Final test accuracy: ${testAccPercent.toFixed(1)}%`
+    );
   }
 
   private async showPredictions(model: Sequential) {
