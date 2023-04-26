@@ -1,5 +1,26 @@
 <div
   class="absolute right-20 border-4 bg-gradient-to-r from-gray-800 to-gray-950 p-8 top-20 text-center border-amber-500 rounded-xl shadow-2xl shadow-amber-500"
 >
-  <!-- Code -->
+  <h2 class="text-6xl font-monoton mb-4 text-cyan-300">Draw Number</h2>
+  <div class="mb-4">
+    <canvas
+      #canvas
+      mhpaiDrawarea
+      class="w-[500px] h-[500px]"
+      width="500"
+      height="500"
+      (image)="predict($event)"
+    ></canvas>
+  </div>
+  <div class="text-6xl font-monoton mb-4 text-cyan-300">
+    Prediction is {{ predictedValue }}
+  </div>
+  <div class="relative">
+    <button
+      class="absolute text-4xl font-monoton bg-amber-500 px-8 py-4 left-1/2 -translate-x-1/2 rounded-xl"
+      (click)="clear()"
+    >
+      Clear
+    </button>
+  </div>
 </div>
