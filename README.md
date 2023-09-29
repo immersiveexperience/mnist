@@ -36,7 +36,6 @@ During training, the **Training Progress** section displays the model's current 
 
 The **Inference Examples** provide a live display of the model's predictions. Green indicates a correct prediction, while red signifies incorrect ones.
 
-
 The model's training progress can be found in the **Status** section located at the bottom right of the page. Once training completes, a pop-up will prompt you to download the model.json and model.weights.bin files. Ensure you save both files to the **apps/mnist/src/assets/models** directory.
 
 ### Prediction
