@@ -43,3 +43,6 @@ The model's training progress can be found in the **Status** section located at 
 Upon completing the training, click the "Predict" button at the top left to navigate to the prediction page. The model will load automatically. Draw a number on the canvas, and the model will predict its value.
 
 To reset the canvas, simply click the "Clear" button.
+
+## Further resources
+[Visual representation of different activation functions](https://glitch.com/~tfjs-activation-functions)
